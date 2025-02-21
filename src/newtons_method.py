@@ -1,38 +1,30 @@
 import numpy as np
 from pathlib import Path
 
-def evaluate_function(func_str, x_value,variables):
-   
-    try: 
-        variables["x"] = x_value
-        return eval(func_str, {"np": np}, variables)
-    except Exception as e:
-        print(f"Error evaluating function: {e}")
-        return None
-
-def newton_method(func, func_deriv, x0, variables, tol, max_iter):
-    x=x0
+#Implementation of Newton's method for 1D problems
+def newton_method(f, df, x0, tol=1e-6, max_iter=100):
+    x = x0
     for i in range(max_iter):
-        fx = evaluate_function(func,x,variables)
-        dfx = evaluate_function(func_deriv,x,variables)
-        print(fx)
-        print(dfx)
-        
-        if dfx == 0 or dfx is None:
-            print("Derivative is zero. Newton's method fails.")
-            return None
-        x_new = fx/dfx
-        
-        # Check for convergence
-        if abs(x_new - x) < tol:
-            print("converged!!!")
-            return x_new
-        
-        x = x_new
-    
+        fx = f(x)
+        dfx = df(x)
+        if abs(fx) < tol:
+            return x
+        if dfx == 0:
+            raise ValueError("Zero derivative encountered, choose a different initial guess.")
+        x -= fx / dfx
+    raise ValueError("Maximum number of iterations reached without convergence.")
+
     print("Maximum iterations reached. Root may not have converged.")
     return None
 
-variables = {"E": 200e9, "I": 1e-6, "L": 2, "F": 1000}
-
-newton_method("2*x" , "2", 1.0, variables=variables, tol=1e-4,max_iter=500)
+#Implementation of Newton's mthod for higher dimension problems
+def newton_multi(F, J, x0, tol=1e-6, max_iter=100):
+    x = np.array(x0, dtype=float)
+    for i in range(max_iter):
+        Fx = np.array(F(x))
+        Jx = np.array(J(x))
+        if np.linalg.norm(Fx, ord=2) < tol:
+            return x
+        dx = np.linalg.solve(Jx, -Fx)
+        x += dx
+    raise ValueError("Maximum number of iterations reached without convergence.")

@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+from typing import List
 
 #Predictor - Corrector Algorithm
 
@@ -26,6 +27,23 @@ class ElastoPlastic:
 
     def compute_delta_epsilon_p(self,phi_trial):
         return phi_trial/(self.E + self.H)
+
+    def start_experiment(self,strain_list:List[float]):
+        stress_list=[]
+        for step_ind,cur_strain in enumerate(strain_list):
+            
+            if step_ind==0:
+                stress_list.append(self.sigma_n)
+                continue
+
+            delta_epsilon = cur_strain - strain_list[step_ind-1]
+            if np.isclose(delta_epsilon,0):
+                stress_list.append(self.sigma_n)
+                continue
+
+            self.update_step(delta_epsilon)
+            stress_list.append(self.sigma_n)
+        return stress_list
 
 
 class IsotropicHardening(ElastoPlastic):
@@ -80,4 +98,20 @@ class KinematicHardening(ElastoPlastic):
             self.sigma_n = self.compute_sigma_n_plastic(sigma_trial, eta_trial, delta_epsilon_p)
             self.alpha_n += np.sign(eta_trial) * self.H * delta_epsilon_p
             self.epsilon_p_n += delta_epsilon_p
+  
+    def start_experiment(self,strain_list:List[float]):
+        stress_list=[]
+        for step_ind,cur_strain in enumerate(strain_list):
 
+            if step_ind==0:
+                stress_list.append(self.sigma_n)
+                continue
+
+            delta_epsilon = cur_strain - strain_list[step_ind-1]
+            if np.isclose(delta_epsilon,0):
+                stress_list.append(self.sigma_n)
+                continue
+
+            self.update_step(delta_epsilon)
+            stress_list.append(self.sigma_n)
+        return stress_list

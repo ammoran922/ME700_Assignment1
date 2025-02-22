@@ -1,3 +1,6 @@
+
+import sys
+sys.path.append('../src')
 import bisection_method as bim
 import numpy as np
 from pathlib import Path

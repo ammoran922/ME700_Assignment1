@@ -60,7 +60,7 @@ class IsotropicHardening(ElastoPlastic):
         Y_n = self.compute_yield_stress()
 
         sigma_trial = self.predict_sigma_trial(delta_epsilon)
-        phi_trial = self.compute_phi_trial(sigma_trial,Y_n)
+        phi_trial = self.check_state(sigma_trial,Y_n)
 
         if self.in_elastic_regime(phi_trial):
             self.sigma_n = sigma_trial
